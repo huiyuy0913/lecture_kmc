@@ -20,6 +20,7 @@ pyplot.close()
 
 
 def run_kmeans(n,dataset):
+	print("Running kmeans with n=", n)
 
 	machine = KMeans(n_clusters=n)  # or we can use KMeans
 	machine.fit(dataset)
@@ -27,12 +28,12 @@ def run_kmeans(n,dataset):
 	centroids = machine.cluster_centers_ # center of the category
 	ssd = machine.inertia_ # distance from the center of the category to all points in the category
 	if n>1:
-		silhouette = silhouette_score(dataset, machine.labels_, metric='euclidean')
+		silhouette = silhouette_score(dataset, results, metric='euclidean')
 	else:
 		silhouette = 0
 	pyplot.scatter(dataset[:,0],dataset[:,1],c=results)
 	pyplot.scatter(centroids[:,0], centroids[:,1], c='red', marker="*", s = 200)
-	pyplot.savefig('scatterplot_kmean_' + str(n) + '.png')
+	pyplot.savefig('scatterplot_kmeans_' + str(n) + '.png')
 	pyplot.close()
 	return ssd, silhouette
 
@@ -54,7 +55,7 @@ print(result)
 
 ssd_result = [ i[0] for i in result]
 
-pyplot.plot(range(1,8), result)
+pyplot.plot(range(1,8), ssd_result)
 pyplot.savefig("kmeans_ssd.png")
 pyplot.close()
 
@@ -66,7 +67,44 @@ pyplot.close()
 
 print(silhouette_result.index(max(silhouette_result))+2)
 
-# kmedoids(median) is less affected by outliers, kmeans(mean)
+
+def run_kmedoids(n,dataset):
+	print("Running kmedoids with n=", n)
+
+	machine = KMedoids(n_clusters=n)  # or we can use KMeans
+	machine.fit(dataset)
+	results = machine.predict(dataset)
+	centroids = machine.cluster_centers_ # center of the category
+	ssd = machine.inertia_ # distance from the center of the category to all points in the category
+	if n>1:
+		silhouette = silhouette_score(dataset, results, metric='euclidean')
+	else:
+		silhouette = 0
+	pyplot.scatter(dataset[:,0],dataset[:,1],c=results)
+	pyplot.scatter(centroids[:,0], centroids[:,1], c='red', marker="*", s = 200)
+	pyplot.savefig('scatterplot_kmedoids_' + str(n) + '.png')
+	pyplot.close()
+	return ssd, silhouette
+
+
+result = [run_kmedoids(i+1,dataset) for i in range(7)]
+print(result)
+
+ssd_result = [ i[0] for i in result]
+
+pyplot.plot(range(1,8), ssd_result)
+pyplot.savefig("kmedoids_ssd.png")
+pyplot.close()
+
+silhouette_result = [ i[1] for i in result][1:]
+
+pyplot.plot(range(2,8), silhouette_result)
+pyplot.savefig("kmedoids_silhouette.png")
+pyplot.close()
+
+print(silhouette_result.index(max(silhouette_result))+2)
+
+# kmedoids(find the exist point, like median) is less affected by outliers, kmeans(can have center which doesn't exist, like mean)
 
 # implement kmean and find optimal n clusters
 
